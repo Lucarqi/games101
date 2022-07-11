@@ -1,3 +1,6 @@
+/*
+向量vector的定义好运算
+*/
 #pragma once
 
 #include <cmath>
