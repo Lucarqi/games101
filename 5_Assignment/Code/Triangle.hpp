@@ -11,6 +11,28 @@ bool rayTriangleIntersect(const Vector3f& v0, const Vector3f& v1, const Vector3f
     // that's specified bt v0, v1 and v2 intersects with the ray (whose
     // origin is *orig* and direction is *dir*)
     // Also don't forget to update tnear, u and v.
+
+    Vector3f E1,E2,S,S1,S2;
+    E1 = v1 - v0;
+    E2 = v2 - v0;
+    S = orig - v0;
+    S1 = crossProduct(dir,E2);
+    S2 = crossProduct(S,E1);
+
+    //更新t,u,v
+    float diver = dotProduct(S1,E1);
+    float tnear_ = dotProduct(S2,E2) / diver;
+    float u_ = dotProduct(S1,S) / diver;
+    float v_ = dotProduct(S2,dir) / diver;
+    //设置bias消除阴影中的背景色
+    float bias = 0.00001;
+    if((tnear_+bias>=0 && u_+bias>=0 && v_+bias>=0 && (1-u_-v_+bias)>=0))
+    {
+        tnear = tnear_;
+        u = u_;
+        v = v_;
+        return true;
+    }
     return false;
 }
 

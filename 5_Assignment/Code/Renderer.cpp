@@ -224,13 +224,31 @@ void Renderer::Render(const Scene& scene)
         {
             // generate primary ray direction
             float x;
-            float y;
+            float y;    
             // TODO: Find the x and y positions of the current pixel to get the direction
             // vector that passes through it.
             // Also, don't forget to multiply both of them with the variable *scale*, and
             // x (horizontal) variable with the *imageAspectRatio*            
+            
+            /*
+            这里的成像平面与光栅化不是一样的，这里不太明白
+            */
+
+            //映射到[0,1]
+            x = (i+0.5) / scene.width;
+            y = (j+0.5) / scene.height;
+            //映射到[-1,1]
+            x = 2*x - 1;
+            y = 2*y - 1;
+            //y要是负数？
+            y = -y;
+            //映射到世界坐标系
+            x *= scale;
+            y *= scale;
+            x *= imageAspectRatio;
 
             Vector3f dir = Vector3f(x, y, -1); // Don't forget to normalize this direction!
+            dir = normalize(dir);
             framebuffer[m++] = castRay(eye_pos, dir, scene, 0);
         }
         UpdateProgress(j / (float)scene.height);
