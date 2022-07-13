@@ -8,7 +8,7 @@
 #include "Material.hpp"
 class Object;
 class Sphere;
-
+//相交处的数据结构
 struct Intersection
 {
     Intersection(){

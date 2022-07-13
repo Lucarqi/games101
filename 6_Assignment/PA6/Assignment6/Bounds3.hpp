@@ -8,7 +8,7 @@
 #include "Vector.hpp"
 #include <limits>
 #include <array>
-
+//包围盒类,使用pMin和pMax表示一个包围盒
 class Bounds3
 {
   public:
@@ -84,21 +84,45 @@ class Bounds3
         return (i == 0) ? pMin : pMax;
     }
 
-    inline bool IntersectP(const Ray& ray, const Vector3f& invDir,
-                           const std::array<int, 3>& dirisNeg) const;
+    //inline bool IntersectP(const Ray& ray, const Vector3f& invDir,
+    //                       const std::array<int, 3>& dirisNeg) const;
+    inline bool IntersectP(const Ray& ray, const Vector3f& invDir
+                             ) const;
 };
 
 
 
-inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir,
-                                const std::array<int, 3>& dirIsNeg) const
+inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir
+                                ) const
 {
     // invDir: ray direction(x,y,z), invDir=(1.0/x,1.0/y,1.0/z), use this because Multiply is faster that Division
     // dirIsNeg: ray direction(x,y,z), dirIsNeg=[int(x>0),int(y>0),int(z>0)], use this to simplify your logic
     // TODO test if ray bound intersects
+    // 判断给定光线是否与包围盒相交
+    std::array<double,3> tmin,tmax;
+    double tx1 = (pMin.x - ray.origin.x) * invDir.x;
+    double tx2 = (pMax.x - ray.origin.x) * invDir.x;
+    tmin[0] = tx1<tx2?tx1:tx2;
+    tmax[0] = tx1<tx2?tx2:tx1;
+    double ty1 = (pMin.y - ray.origin.y) * invDir.y;
+    double ty2 = (pMax.y - ray.origin.y) * invDir.y;
+    tmin[1] = ty1<ty2?ty1:ty2;
+    tmax[1] = ty1<ty2?ty2:ty1;
+    double tz1 = (pMin.z - ray.origin.z) * invDir.z;
+    double tz2 = (pMax.z - ray.origin.z) * invDir.z;
+    tmin[2] = tz1<tz2?tz1:tz2;
+    tmax[2] = tz1<tz2?tz2:tz1;
     
+    auto max = std::max_element(tmax.begin(),tmax.end());
+    auto min = std::min_element(tmin.begin(),tmin.end());
+    if(*min < *max && *max >=0)
+        return true;
+    return false;
 }
 
+/*
+求包围盒的算法，其实求点的最大值和最小值
+*/
 inline Bounds3 Union(const Bounds3& b1, const Bounds3& b2)
 {
     Bounds3 ret;

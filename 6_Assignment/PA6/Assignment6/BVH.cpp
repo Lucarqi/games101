@@ -30,9 +30,11 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
     BVHBuildNode* node = new BVHBuildNode();
 
     // Compute bounds of all primitives in BVH node
+    // 给定当前的objects求最大的包围盒
     Bounds3 bounds;
-    for (int i = 0; i < objects.size(); ++i)
+    for (int i = 0; i < (int)objects.size(); ++i)
         bounds = Union(bounds, objects[i]->getBounds());
+    // 划分到一个时停止，即叶子节点
     if (objects.size() == 1) {
         // Create leaf _BVHBuildNode_
         node->bounds = objects[0]->getBounds();
@@ -41,6 +43,7 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
         node->right = nullptr;
         return node;
     }
+    // 划分到两个，左右划分
     else if (objects.size() == 2) {
         node->left = recursiveBuild(std::vector{objects[0]});
         node->right = recursiveBuild(std::vector{objects[1]});
@@ -49,8 +52,9 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
         return node;
     }
     else {
+        //包围盒的划分：以最大维度划分
         Bounds3 centroidBounds;
-        for (int i = 0; i < objects.size(); ++i)
+        for (int i = 0; i < (int)objects.size(); ++i)
             centroidBounds =
                 Union(centroidBounds, objects[i]->getBounds().Centroid());
         int dim = centroidBounds.maxExtent();
@@ -105,5 +109,23 @@ Intersection BVHAccel::Intersect(const Ray& ray) const
 Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
 {
     // TODO Traverse the BVH to find intersection
-
+    // 遍历BVH加速结构，找到最近的相交点
+    
+    //遍历到叶子节点
+    //std::cerr<<ray<<std::endl;
+    if(node->left==nullptr && node->right==nullptr){
+        return node->object->getIntersection(ray);
+    }
+    //遍历到中间节点，返回当前left/right最近的相交点
+    Intersection interleft,interright;
+    if(node->bounds.IntersectP(ray,ray.direction_inv)){
+        if(node->left!=nullptr)
+            interleft = getIntersection(node->left,ray);
+        if(node->right!=nullptr)
+            interright = getIntersection(node->right,ray);
+        return interleft.distance < interright.distance ? interleft:interright;
+    }
+    else {
+        return interleft;
+    }
 }

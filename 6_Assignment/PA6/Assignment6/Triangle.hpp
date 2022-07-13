@@ -89,7 +89,7 @@ public:
         Vector3f max_vert = Vector3f{-std::numeric_limits<float>::infinity(),
                                      -std::numeric_limits<float>::infinity(),
                                      -std::numeric_limits<float>::infinity()};
-        for (int i = 0; i < mesh.Vertices.size(); i += 3) {
+        for (int i = 0; i < (int)mesh.Vertices.size(); i += 3) {
             std::array<Vector3f, 3> face_vertices;
             for (int j = 0; j < 3; j++) {
                 auto vert = Vector3f(mesh.Vertices[i + j].Position.X,
@@ -122,7 +122,7 @@ public:
         std::vector<Object*> ptrs;
         for (auto& tri : triangles)
             ptrs.push_back(&tri);
-
+        //?为meshTriangle创建BVH
         bvh = new BVHAccel(ptrs);
     }
 
@@ -205,22 +205,26 @@ inline bool Triangle::intersect(const Ray& ray, float& tnear,
 {
     return false;
 }
-
+//返回三角形的包围盒
 inline Bounds3 Triangle::getBounds() { return Union(Bounds3(v0, v1), v2); }
 
+//三角形求交
 inline Intersection Triangle::getIntersection(Ray ray)
 {
     Intersection inter;
 
     if (dotProduct(ray.direction, normal) > 0)
         return inter;
+    //t,b1,b2
     double u, v, t_tmp = 0;
+    //S1
     Vector3f pvec = crossProduct(ray.direction, e2);
     double det = dotProduct(e1, pvec);
     if (fabs(det) < EPSILON)
         return inter;
-
+    //1/E1*S1
     double det_inv = 1. / det;
+    //S
     Vector3f tvec = ray.origin - v0;
     u = dotProduct(tvec, pvec) * det_inv;
     if (u < 0 || u > 1)
@@ -232,10 +236,14 @@ inline Intersection Triangle::getIntersection(Ray ray)
     t_tmp = dotProduct(e2, qvec) * det_inv;
 
     // TODO find ray triangle intersection
-
-
-
-
+    if(t_tmp < 0)
+        return inter;
+    inter.happened = true;
+    inter.distance = t_tmp;
+    inter.normal = this->normal;
+    inter.m = this->m;
+    inter.obj = this;
+    inter.coords = Vector3f(ray.origin + ray.direction*t_tmp);
     return inter;
 }
 
