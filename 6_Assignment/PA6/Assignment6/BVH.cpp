@@ -110,22 +110,23 @@ Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
 {
     // TODO Traverse the BVH to find intersection
     // 遍历BVH加速结构，找到最近的相交点
-    
-    //遍历到叶子节点
-    //std::cerr<<ray<<std::endl;
-    if(node->left==nullptr && node->right==nullptr){
-        return node->object->getIntersection(ray);
+    std::array<int,3> dirisNeg={int(ray.direction.x>0),int(ray.direction.y>0),int(ray.direction.z>0)};
+    if(node->bounds.IntersectP(ray,ray.direction_inv,dirisNeg))
+    {
+        //遍历到叶子节点
+        if(node->left==nullptr && node->right==nullptr){
+            return node->object->getIntersection(ray);
+        }
+        else {
+        //遍历到中间节点，返回当前left/right最近的相交点
+            Intersection interleft = getIntersection(node->left,ray);
+            Intersection interright = getIntersection(node->right,ray);
+            return interleft.distance < interright.distance ? interleft:interright;   
+        }
     }
-    //遍历到中间节点，返回当前left/right最近的相交点
-    Intersection interleft,interright;
-    if(node->bounds.IntersectP(ray,ray.direction_inv)){
-        if(node->left!=nullptr)
-            interleft = getIntersection(node->left,ray);
-        if(node->right!=nullptr)
-            interright = getIntersection(node->right,ray);
-        return interleft.distance < interright.distance ? interleft:interright;
-    }
-    else {
-        return interleft;
+    else 
+    {
+        //std::cerr<<"1"<<std::endl;
+        return Intersection();
     }
 }

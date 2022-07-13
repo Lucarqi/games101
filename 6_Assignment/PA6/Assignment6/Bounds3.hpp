@@ -84,21 +84,22 @@ class Bounds3
         return (i == 0) ? pMin : pMax;
     }
 
-    //inline bool IntersectP(const Ray& ray, const Vector3f& invDir,
-    //                       const std::array<int, 3>& dirisNeg) const;
-    inline bool IntersectP(const Ray& ray, const Vector3f& invDir
-                             ) const;
+    inline bool IntersectP(const Ray& ray, const Vector3f& invDir,
+                           const std::array<int, 3>& dirisNeg) const;
+    //inline bool IntersectP(const Ray& ray, const Vector3f& invDir
+    //                         ) const;
 };
 
 
 
-inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir
-                                ) const
+inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir,
+                                const std::array<int,3>& dirisNeg) const
 {
     // invDir: ray direction(x,y,z), invDir=(1.0/x,1.0/y,1.0/z), use this because Multiply is faster that Division
     // dirIsNeg: ray direction(x,y,z), dirIsNeg=[int(x>0),int(y>0),int(z>0)], use this to simplify your logic
     // TODO test if ray bound intersects
     // 判断给定光线是否与包围盒相交
+    /*
     std::array<double,3> tmin,tmax;
     double tx1 = (pMin.x - ray.origin.x) * invDir.x;
     double tx2 = (pMax.x - ray.origin.x) * invDir.x;
@@ -118,6 +119,27 @@ inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir
     if(*min < *max && *max >=0)
         return true;
     return false;
+    */
+    Vector3f tmin_ = (pMin - ray.origin) * invDir;
+    Vector3f tmax_ = (pMax - ray.origin) * invDir;
+    std::array<double,3> tmin,tmax;
+    tmin[0] = tmin_.x; tmin[1] = tmin_.y; tmin[2] = tmin_.z;
+    tmax[0] = tmax_.x; tmax[1] = tmax_.y; tmax[2] = tmax_.z;
+    double tmp=0.0;
+    //当是负方向时，需要交换下进入和出去时间
+    for(int i=0;i<3;i++){
+        if(!dirisNeg[i]){
+            tmp = tmin[i];
+            tmin[i] = tmax[i];
+            tmax[i] = tmp;
+        }
+    }
+    auto tEnter = std::max_element(tmin.begin(),tmin.end());
+    auto tExit = std::min_element(tmax.begin(),tmax.end());
+    if(*tEnter<*tExit && *tEnter>=0){
+        return true;
+    }
+    else return false;
 }
 
 /*
