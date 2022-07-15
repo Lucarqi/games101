@@ -39,7 +39,8 @@ public:
 
     // BVHAccel Private Methods
     BVHBuildNode* recursiveBuild(std::vector<Object*>objects);
-
+    // SAH划分
+    BVHBuildNode* recursiveBuild_SAH(std::vector<Object*>objects);
     // BVHAccel Private Data
     const int maxPrimsInNode;
     const SplitMethod splitMethod;
@@ -61,8 +62,6 @@ public:
         object = nullptr;
     }
 };
-
-
 
 
 #endif //RAYTRACING_BVH_H
