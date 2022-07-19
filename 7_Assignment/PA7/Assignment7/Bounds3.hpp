@@ -96,6 +96,26 @@ inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir,
     // invDir: ray direction(x,y,z), invDir=(1.0/x,1.0/y,1.0/z), use this because Multiply is faster that Division
     // dirIsNeg: ray direction(x,y,z), dirIsNeg=[int(x>0),int(y>0),int(z>0)], use this to simplify your logic
     // TODO test if ray bound intersects
+    Vector3f tmin_ = (pMin - ray.origin) * invDir;
+    Vector3f tmax_ = (pMax - ray.origin) * invDir;
+    std::array<double,3> tmin,tmax;
+    tmin[0] = tmin_.x; tmin[1] = tmin_.y; tmin[2] = tmin_.z;
+    tmax[0] = tmax_.x; tmax[1] = tmax_.y; tmax[2] = tmax_.z;
+    double tmp=0.0;
+    //当是负方向时，需要交换下进入和出去时间
+    for(int i=0;i<3;i++){
+        if(!dirIsNeg[i]){
+            tmp = tmin[i];
+            tmin[i] = tmax[i];
+            tmax[i] = tmp;
+        }
+    }
+    auto tEnter = std::max_element(tmin.begin(),tmin.end());
+    auto tExit = std::min_element(tmax.begin(),tmax.end());
+    if(*tEnter<=*tExit && *tEnter>=0){
+        return true;
+    }
+    else return false;
 
 }
 
