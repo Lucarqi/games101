@@ -119,6 +119,8 @@ Material::Material(MaterialType t, Vector3f e){
 MaterialType Material::getType(){return m_type;}
 ///Vector3f Material::getColor(){return m_color;}
 Vector3f Material::getEmission() {return m_emission;}
+
+// 该物体发光
 bool Material::hasEmission() {
     if (m_emission.norm() > EPSILON) return true;
     else return false;
@@ -128,7 +130,7 @@ Vector3f Material::getColorAt(double u, double v) {
     return Vector3f();
 }
 
-
+// 根据材质性质,给定入射方向wi和法线方向N，采样出射方向
 Vector3f Material::sample(const Vector3f &wi, const Vector3f &N){
     switch(m_type){
         case DIFFUSE:
@@ -145,6 +147,7 @@ Vector3f Material::sample(const Vector3f &wi, const Vector3f &N){
     }
 }
 
+// 计算pdf概率
 float Material::pdf(const Vector3f &wi, const Vector3f &wo, const Vector3f &N){
     switch(m_type){
         case DIFFUSE:
@@ -159,6 +162,7 @@ float Material::pdf(const Vector3f &wi, const Vector3f &wo, const Vector3f &N){
     }
 }
 
+// 计算BRDF值
 Vector3f Material::eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &N){
     switch(m_type){
         case DIFFUSE:

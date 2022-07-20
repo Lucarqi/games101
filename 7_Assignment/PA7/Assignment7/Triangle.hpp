@@ -72,12 +72,13 @@ public:
     }
     Vector3f evalDiffuseColor(const Vector2f&) const override;
     Bounds3 getBounds() override;
+    // 采样Triangle中随机的点
     void Sample(Intersection &pos, float &pdf){
         float x = std::sqrt(get_random_float()), y = get_random_float();
         pos.coords = v0 * (1.0f - x) + v1 * (x * (1.0f - y)) + v2 * (x * y);
         pos.normal = this->normal;
         pdf = 1.0f / area;
-    }
+    } 
     float getArea(){
         return area;
     }
@@ -93,6 +94,7 @@ public:
     {
         objl::Loader loader;
         loader.LoadFile(filename);
+        // 物体面积，所有mesh的总和
         area = 0;
         m = mt;
         assert(loader.LoadedMeshes.size() == 1);
@@ -128,10 +130,12 @@ public:
         bounding_box = Bounds3(min_vert, max_vert);
 
         std::vector<Object*> ptrs;
+        // meshTriangle中，使用Triangle加载BVH
         for (auto& tri : triangles){
             ptrs.push_back(&tri);
             area += tri.area;
         }
+        // 创建的是triangles的BVH加速结构
         bvh = new BVHAccel(ptrs);
     }
 
@@ -261,7 +265,8 @@ inline Intersection Triangle::getIntersection(Ray ray)
     inter.m = this->m;
     inter.obj = this;
     inter.coords = Vector3f(ray.origin + ray.direction*t_tmp);
-    
+    inter.emit = this->m->getEmission();
+
     return inter;
 }
 

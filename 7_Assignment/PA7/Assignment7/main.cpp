@@ -14,8 +14,10 @@ int main(int argc, char** argv)
 {
 
     // Change the definition here to change resolution
-    Scene scene(784, 784);
+    // Scene scene(784, 784);
+    Scene scene(400,400);
 
+    // Material == BRDF
     Material* red = new Material(DIFFUSE, Vector3f(0.0f));
     red->Kd = Vector3f(0.63f, 0.065f, 0.05f);
     Material* green = new Material(DIFFUSE, Vector3f(0.0f));
@@ -30,6 +32,7 @@ int main(int argc, char** argv)
     MeshTriangle tallbox("../models/cornellbox/tallbox.obj", white);
     MeshTriangle left("../models/cornellbox/left.obj", red);
     MeshTriangle right("../models/cornellbox/right.obj", green);
+    // 光源
     MeshTriangle light_("../models/cornellbox/light.obj", light);
 
     scene.Add(&floor);

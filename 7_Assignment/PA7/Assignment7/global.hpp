@@ -28,6 +28,7 @@ inline  bool solveQuadratic(const float &a, const float &b, const float &c, floa
     return true;
 }
 
+// 获得[0,1]间均匀分布值
 inline float get_random_float()
 {
     std::random_device dev;

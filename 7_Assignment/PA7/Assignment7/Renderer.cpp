@@ -24,11 +24,14 @@ void Renderer::Render(const Scene& scene)
     int m = 0;
 
     // change the spp value to change sample ammount
-    int spp = 16;
+    // Sample Per Pixel 像素的采样次数
+    int spp = 8;
+    //int spp = 8;
     std::cout << "SPP: " << spp << "\n";
     for (uint32_t j = 0; j < scene.height; ++j) {
         for (uint32_t i = 0; i < scene.width; ++i) {
             // generate primary ray direction
+            // 生成光源到image plane中一个像素的光线
             float x = (2 * (i + 0.5) / (float)scene.width - 1) *
                       imageAspectRatio * scale;
             float y = (1 - 2 * (j + 0.5) / (float)scene.height) * scale;

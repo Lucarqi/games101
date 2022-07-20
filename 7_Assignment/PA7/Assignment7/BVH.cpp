@@ -130,6 +130,7 @@ Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
 
 
 void BVHAccel::getSample(BVHBuildNode* node, float p, Intersection &pos, float &pdf){
+    // 采样到具体的Triangle上
     if(node->left == nullptr || node->right == nullptr){
         node->object->Sample(pos, pdf);
         pdf *= node->area;
@@ -139,6 +140,7 @@ void BVHAccel::getSample(BVHBuildNode* node, float p, Intersection &pos, float &
     else getSample(node->right, p - node->left->area, pos, pdf);
 }
 
+// meshTriangle调用，即实体
 void BVHAccel::Sample(Intersection &pos, float &pdf){
     float p = std::sqrt(get_random_float()) * root->area;
     getSample(root, p, pos, pdf);
