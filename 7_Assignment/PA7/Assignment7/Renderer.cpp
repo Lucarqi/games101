@@ -25,8 +25,7 @@ void Renderer::Render(const Scene& scene)
 
     // change the spp value to change sample ammount
     // Sample Per Pixel 像素的采样次数
-    int spp = 8;
-    //int spp = 8;
+    int spp = 32;
     std::cout << "SPP: " << spp << "\n";
     for (uint32_t j = 0; j < scene.height; ++j) {
         for (uint32_t i = 0; i < scene.width; ++i) {
