@@ -3,6 +3,7 @@
 //
 
 #include <fstream>
+#include <thread>
 #include "Scene.hpp"
 #include "Renderer.hpp"
 
@@ -25,20 +26,30 @@ void Renderer::Render(const Scene& scene)
 
     // change the spp value to change sample ammount
     // Sample Per Pixel 像素的采样次数
-    int spp = 32;
+    int spp = 16;
     std::cout << "SPP: " << spp << "\n";
     for (uint32_t j = 0; j < scene.height; ++j) {
         for (uint32_t i = 0; i < scene.width; ++i) {
             // generate primary ray direction
-            // 生成光源到image plane中一个像素的光线
             float x = (2 * (i + 0.5) / (float)scene.width - 1) *
                       imageAspectRatio * scale;
             float y = (1 - 2 * (j + 0.5) / (float)scene.height) * scale;
 
             Vector3f dir = normalize(Vector3f(-x, y, 1));
+            /*
             for (int k = 0; k < spp; k++){
                 framebuffer[m] += scene.castRay(Ray(eye_pos, dir), 0) / spp;  
+            }*/
+            // change to multithread
+            int thread_num = 16;
+            auto cast_ray=[&](const int thread_id){
+                framebuffer[m] += scene.castRay(Ray(eye_pos, dir), 0) / spp;
+            };
+            std::thread th[thread_num];
+            for(int i=0;i<thread_num;i++){
+                th[i] = std::thread(cast_ray, i);
             }
+            for(std::thread &x:th) {x.join();}
             m++;
         }
         UpdateProgress(j / (float)scene.height);
